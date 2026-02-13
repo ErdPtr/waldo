@@ -150,10 +150,10 @@
     </style>
 </head>
 <body>
-    <h1>Where's Waldo?</h1>
+    <h1>🔍 Where's Waldo? 🔍</h1>
     
     <div class="instructions">
-        <p><strong>Találd meg Waldo-t!</strong>Kattints Waldo-ra a tovább jutáshoz! Sok szerencsét!</p>
+        <p><strong>Találd meg Waldo-t!</strong> Kattints Waldo-ra a tovább jutáshoz!</p>
     </div>
 
     <div class="game-info">
@@ -168,8 +168,8 @@
         const levels = [
             {
                 image: 'kep1.webp',
-                waldoX: 0.725,
-                waldoY: 0.62, 
+                waldoX: 0.725,  
+                waldoY: 0.62,   
                 tolerance: 0.04  
             },
             {
@@ -201,22 +201,21 @@
         let currentLevel = 0;
         const gameImage = document.getElementById('game-image');
         const currentLevelDisplay = document.getElementById('current-level');
-
         function loadLevel(levelIndex) {
             if (levelIndex >= levels.length) {
                 showVictory();
                 return;
             }
-            
             gameImage.src = levels[levelIndex].image;
             currentLevelDisplay.textContent = levelIndex + 1;
         }
 
         function checkClick(event) {
             const rect = gameImage.getBoundingClientRect();
-            const x = (event.clientX - rect.left) / rect.width;
-            const y = (event.clientY - rect.top) / rect.height;
-
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+            const x = clickX / rect.width;
+            const y = clickY / rect.height;
             const level = levels[currentLevel];
             const distance = Math.sqrt(
                 Math.pow(x - level.waldoX, 2) + 
@@ -225,10 +224,12 @@
 
             const feedback = document.createElement('div');
             feedback.className = 'click-feedback';
-            feedback.style.left = (event.clientX - 30) + 'px';
-            feedback.style.top = (event.clientY - 30) + 'px';
+            // Position feedback relative to the image, not the viewport
+            feedback.style.left = (rect.left + clickX - 30) + 'px';
+            feedback.style.top = (rect.top + clickY - 30) + 'px';
 
             if (distance <= level.tolerance) {
+                // Found Waldo!
                 feedback.classList.add('success');
                 document.body.appendChild(feedback);
                 
@@ -240,7 +241,6 @@
             } else {
                 feedback.classList.add('fail');
                 document.body.appendChild(feedback);
-                
                 setTimeout(() => {
                     feedback.remove();
                 }, 600);
@@ -251,7 +251,7 @@
             const victoryScreen = document.createElement('div');
             victoryScreen.className = 'victory';
             victoryScreen.innerHTML = `
-                <h2>🎉 Congratulations! 🎉</h2>
+                <h2>Gratulálok!!!</h2>
                 <p style="font-size: 1.3em; margin-bottom: 20px;">You found Waldo in all 5 scenes!</p>
                 <button onclick="restartGame()">Play Again</button>
             `;
