@@ -18,45 +18,51 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
+            overflow-x: hidden;
         }
 
         h1 {
             color: white;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-            font-size: 3em;
+            margin-bottom: 10px;
+            font-size: 1.8em;
             text-align: center;
         }
 
         .game-info {
             background: white;
-            padding: 15px 30px;
-            border-radius: 15px;
+            padding: 8px 20px;
+            border-radius: 10px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             text-align: center;
         }
 
         .level {
-            font-size: 1.5em;
+            font-size: 1.2em;
             color: #667eea;
             font-weight: bold;
         }
 
         .game-container {
             position: relative;
-            max-width: 100%;
+            max-width: 95vw;
+            max-height: 75vh;
             background: white;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             padding: 10px;
-            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #game-image {
             display: block;
             max-width: 100%;
+            max-height: 70vh;
+            width: auto;
             height: auto;
             cursor: crosshair;
             border-radius: 10px;
@@ -162,20 +168,22 @@
 
         .instructions {
             background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
             max-width: 600px;
             text-align: center;
+            font-size: 0.9em;
         }
 
         .debug-badge {
             background: #FF00FF;
             color: white;
-            padding: 5px 15px;
+            padding: 3px 10px;
             border-radius: 5px;
             font-weight: bold;
             margin-left: 10px;
+            font-size: 0.7em;
         }
     </style>
 </head>
@@ -199,33 +207,33 @@
         const levels = [
             {
                 image: 'kep1.webp',
-                waldoX: 0.725,
-                waldoY: 0.62, 
-                tolerance: 0.04  
+                waldoX: 0.73,    // Ski slope - lower right area
+                waldoY: 0.675,
+                tolerance: 0.035  
             },
             {
                 image: 'kep2.webp',
-                waldoX: 0.58,
-                waldoY: 0.125,
+                waldoX: 0.545,   // Deep sea - upper middle area (two circles shown)
+                waldoY: 0.165,
                 tolerance: 0.04
             },
             {
                 image: 'kep3.webp',
-                waldoX: 0.275,
-                waldoY: 0.725,
-                tolerance: 0.04
+                waldoX: 0.31,    // Toy town - lower left area
+                waldoY: 0.71,
+                tolerance: 0.035
             },
             {
                 image: 'kep4.webp',
-                waldoX: 0.525,
-                waldoY: 0.385,
-                tolerance: 0.04
+                waldoX: 0.515,   // Beach - center area
+                waldoY: 0.41,
+                tolerance: 0.035
             },
             {
                 image: 'kep5.webp',
-                waldoX: 0.145,
-                waldoY: 0.715,
-                tolerance: 0.04
+                waldoX: 0.175,   // Giants - lower left area
+                waldoY: 0.695,
+                tolerance: 0.035
             }
         ];
 
@@ -244,14 +252,17 @@
             const rect = gameImage.getBoundingClientRect();
             const level = levels[currentLevel];
             
-            // Calculate hitbox position and size
-            const centerX = rect.left + (rect.width * level.waldoX);
-            const centerY = rect.top + (rect.height * level.waldoY);
+            // Calculate hitbox position and size using pageX/pageY for absolute positioning
+            const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
             
-            // Tolerance is a percentage, convert to pixels
-            // Use average of width and height for radius calculation
-            const avgDimension = (rect.width + rect.height) / 2;
-            const radiusPixels = avgDimension * level.tolerance;
+            const centerX = rect.left + scrollX + (rect.width * level.waldoX);
+            const centerY = rect.top + scrollY + (rect.height * level.waldoY);
+            
+            // Tolerance is a percentage, convert to pixels using Euclidean distance
+            const radiusPixelsX = rect.width * level.tolerance;
+            const radiusPixelsY = rect.height * level.tolerance;
+            const radiusPixels = Math.sqrt(radiusPixelsX * radiusPixelsX + radiusPixelsY * radiusPixelsY);
             
             // Create hitbox circle
             const hitbox = document.createElement('div');
