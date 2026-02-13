@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where's Waldo?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            font-size: 3em;
+            text-align: center;
+        }
+
+        .game-info {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .level {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .game-container {
+            position: relative;
+            max-width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 10px;
+            overflow: auto;
+        }
+
+        #game-image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            cursor: crosshair;
+            border-radius: 10px;
+        }
+
+        .click-feedback {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: ping 0.6s ease-out;
+        }
+
+        .success {
+            border: 4px solid #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .fail {
+            border: 4px solid #f44336;
+            background: rgba(244, 67, 54, 0.2);
+        }
+
+        @keyframes ping {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .victory {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
+            z-index: 1000;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .victory h2 {
+            color: #4CAF50;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .victory button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .victory button:hover {
+            transform: scale(1.05);
+            background: #764ba2;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            max-width: 600px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Where's Waldo? 🔍</h1>
+    
+    <div class="instructions">
+        <p><strong>Find Waldo!</strong> Click on Waldo in the image to advance to the next level. Good luck! 🎯</p>
+    </div>
+
+    <div class="game-info">
+        <div class="level">Level <span id="current-level">1</span> of 5</div>
+    </div>
+
+    <div class="game-container">
+        <img id="game-image" src="" alt="Where's Waldo?">
+    </div>
+
+    <script>
+        const levels = [
+            {
+                image: '/mnt/user-data/uploads/1770239504322_image.png',
+                // Waldo location for ski slope scene (approximate percentage from top-left)
+                waldoX: 0.725,  // 72.5% from left
+                waldoY: 0.62,   // 62% from top
+                tolerance: 0.04  // 4% tolerance radius
+            },
+            {
+                image: '/mnt/user-data/uploads/1770239575275_image.png',
+                // Waldo location for deep sea divers scene
+                waldoX: 0.58,
+                waldoY: 0.125,
+                tolerance: 0.04
+            },
+            {
+                image: '/mnt/user-data/uploads/1770239807164_image.png',
+                // Waldo location for toy factory scene
+                waldoX: 0.275,
+                waldoY: 0.725,
+                tolerance: 0.04
+            },
+            {
+                image: '/mnt/user-data/uploads/1770239889098_image.png',
+                // Waldo location for beach scene
+                waldoX: 0.525,
+                waldoY: 0.385,
+                tolerance: 0.04
+            },
+            {
+                image: '/mnt/user-data/uploads/1770239928056_image.png',
+                // Waldo location for giants scene
+                waldoX: 0.145,
+                waldoY: 0.715,
+                tolerance: 0.04
+            }
+        ];
+
+        let currentLevel = 0;
+        const gameImage = document.getElementById('game-image');
+        const currentLevelDisplay = document.getElementById('current-level');
+
+        function loadLevel(levelIndex) {
+            if (levelIndex >= levels.length) {
+                showVictory();
+                return;
+            }
+            
+            gameImage.src = levels[levelIndex].image;
+            currentLevelDisplay.textContent = levelIndex + 1;
+        }
+
+        function checkClick(event) {
+            const rect = gameImage.getBoundingClientRect();
+            const x = (event.clientX - rect.left) / rect.width;
+            const y = (event.clientY - rect.top) / rect.height;
+
+            const level = levels[currentLevel];
+            const distance = Math.sqrt(
+                Math.pow(x - level.waldoX, 2) + 
+                Math.pow(y - level.waldoY, 2)
+            );
+
+            const feedback = document.createElement('div');
+            feedback.className = 'click-feedback';
+            feedback.style.left = (event.clientX - 30) + 'px';
+            feedback.style.top = (event.clientY - 30) + 'px';
+
+            if (distance <= level.tolerance) {
+                // Found Waldo!
+                feedback.classList.add('success');
+                document.body.appendChild(feedback);
+                
+                setTimeout(() => {
+                    feedback.remove();
+                    currentLevel++;
+                    loadLevel(currentLevel);
+                }, 600);
+            } else {
+                // Wrong spot
+                feedback.classList.add('fail');
+                document.body.appendChild(feedback);
+                
+                setTimeout(() => {
+                    feedback.remove();
+                }, 600);
+            }
+        }
+
+        function showVictory() {
+            const victoryScreen = document.createElement('div');
+            victoryScreen.className = 'victory';
+            victoryScreen.innerHTML = `
+                <h2>🎉 Congratulations! 🎉</h2>
+                <p style="font-size: 1.3em; margin-bottom: 20px;">You found Waldo in all 5 scenes!</p>
+                <button onclick="restartGame()">Play Again</button>
+            `;
+            document.body.appendChild(victoryScreen);
+        }
+
+        function restartGame() {
+            currentLevel = 0;
+            document.querySelector('.victory')?.remove();
+            loadLevel(currentLevel);
+        }
+
+        gameImage.addEventListener('click', checkClick);
+
+        // Load the first level
+        loadLevel(0);
+    </script>
+</body>
+</html>
