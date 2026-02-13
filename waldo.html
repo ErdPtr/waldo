@@ -150,10 +150,10 @@
     </style>
 </head>
 <body>
-    <h1>🔍 Where's Waldo? 🔍</h1>
+    <h1>Where's Waldo?</h1>
     
     <div class="instructions">
-        <p><strong>Find Waldo!</strong> Click on Waldo in the image to advance to the next level. Good luck! 🎯</p>
+        <p><strong>Találd meg Waldo-t!</strong>Kattints Waldo-ra a tovább jutáshoz! Sok szerencsét!</p>
     </div>
 
     <div class="game-info">
@@ -167,36 +167,31 @@
     <script>
         const levels = [
             {
-                image: '/mnt/user-data/uploads/1770239504322_image.png',
-                // Waldo location for ski slope scene (approximate percentage from top-left)
-                waldoX: 0.725,  // 72.5% from left
-                waldoY: 0.62,   // 62% from top
-                tolerance: 0.04  // 4% tolerance radius
+                image: 'kep1.webp',
+                waldoX: 0.725,
+                waldoY: 0.62, 
+                tolerance: 0.04  
             },
             {
-                image: '/mnt/user-data/uploads/1770239575275_image.png',
-                // Waldo location for deep sea divers scene
+                image: 'kep2.webp',
                 waldoX: 0.58,
                 waldoY: 0.125,
                 tolerance: 0.04
             },
             {
-                image: '/mnt/user-data/uploads/1770239807164_image.png',
-                // Waldo location for toy factory scene
+                image: 'kep3.webp',
                 waldoX: 0.275,
                 waldoY: 0.725,
                 tolerance: 0.04
             },
             {
-                image: '/mnt/user-data/uploads/1770239889098_image.png',
-                // Waldo location for beach scene
+                image: 'kep4.webp',
                 waldoX: 0.525,
                 waldoY: 0.385,
                 tolerance: 0.04
             },
             {
-                image: '/mnt/user-data/uploads/1770239928056_image.png',
-                // Waldo location for giants scene
+                image: 'kep5.webp',
                 waldoX: 0.145,
                 waldoY: 0.715,
                 tolerance: 0.04
@@ -234,7 +229,6 @@
             feedback.style.top = (event.clientY - 30) + 'px';
 
             if (distance <= level.tolerance) {
-                // Found Waldo!
                 feedback.classList.add('success');
                 document.body.appendChild(feedback);
                 
@@ -244,7 +238,6 @@
                     loadLevel(currentLevel);
                 }, 600);
             } else {
-                // Wrong spot
                 feedback.classList.add('fail');
                 document.body.appendChild(feedback);
                 
@@ -272,8 +265,6 @@
         }
 
         gameImage.addEventListener('click', checkClick);
-
-        // Load the first level
         loadLevel(0);
     </script>
 </body>
