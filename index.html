@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Where's Waldo? - DEBUG MODE</title>
+    <title>Where's Waldo?</title>
     <style>
         * {
             margin: 0;
@@ -14,6 +14,10 @@
         body {
             font-family: 'Comic Sans MS', cursive, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-image: url('BACKGROUND_IMAGE_URL_HERE');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -87,27 +91,6 @@
             background: rgba(244, 67, 54, 0.2);
         }
 
-        /* DEBUG: Hitbox overlay */
-        .hitbox-overlay {
-            position: absolute;
-            border: 3px solid #FF00FF;
-            background: rgba(255, 0, 255, 0.15);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 100;
-        }
-
-        .hitbox-center {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #FF00FF;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 101;
-            transform: translate(-50%, -50%);
-        }
-
         @keyframes ping {
             0% {
                 transform: scale(0.5);
@@ -175,213 +158,129 @@
             text-align: center;
             font-size: 0.9em;
         }
-
-        .debug-badge {
-            background: #FF00FF;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            margin-left: 10px;
-            font-size: 0.7em;
-        }
     </style>
 </head>
 <body>
-    <h1>🔍 Where's Waldo? 🔍 <span class="debug-badge">DEBUG MODE</span></h1>
+    <h1>🔍 Where's Waldo? 🔍</h1>
     
     <div class="instructions">
         <p><strong>Find Waldo!</strong> Click on Waldo in the image to advance to the next level. Good luck! 🎯</p>
-        <p style="margin-top: 10px; color: #FF00FF;"><strong>DEBUG:</strong> Pink circles show the hitbox areas</p>
     </div>
 
     <div class="game-info">
         <div class="level">Level <span id="current-level">1</span> of 5</div>
     </div>
 
-    <div class="game-container" id="game-container">
+    <div class="game-container">
         <img id="game-image" src="" alt="Where's Waldo?">
     </div>
 
     <script>
-        const levels = [
+        const aLvl = [
             {
-                image: 'kep1.webp',
-                waldoX: 0.85, // LEFT-RIGHT position (0 = far left, 1 = far right)
-                waldoY: 0.75, // UP-DOWN position (0 = top, 1 = bottom)
-                tolerance: 0.015  // SIZE of the hitbox (bigger number = bigger circle)
+                sImg: 'kep1.webp',
+                fX: 0.73,
+                fY: 0.675,
+                fTol: 0.035
             },
             {
-                image: 'kep2.webp',
-                waldoX: 0.665,
-                waldoY: 0.165,
-                tolerance: 0.01   // Adjust this value to change hitbox size for level 2
+                sImg: 'kep2.webp',
+                fX: 0.545,
+                fY: 0.165,
+                fTol: 0.04
             },
             {
-                image: 'kep3.webp',
-                waldoX: 0.17038,
-                waldoY: 0.71184,
-                tolerance: 0.007  // Adjust this value to change hitbox size for level 3
+                sImg: 'kep3.webp',
+                fX: 0.31,
+                fY: 0.71,
+                fTol: 0.035
             },
             {
-                image: 'kep4.webp',
-                waldoX: 0.6197,
-                waldoY: 0.3863,
-                tolerance: 0.015  // Adjust this value to change hitbox size for level 4
+                sImg: 'kep4.webp',
+                fX: 0.515,
+                fY: 0.41,
+                fTol: 0.035
             },
             {
-                image: 'kep5.webp',
-                waldoX: 0.17768,
-                waldoY: 0.65954,
-                tolerance: 0.01  // Adjust this value to change hitbox size for level 5
+                sImg: 'kep5.webp',
+                fX: 0.175,
+                fY: 0.695,
+                fTol: 0.035
             }
         ];
 
-        let currentLevel = 0;
-        const gameImage = document.getElementById('game-image');
-        const gameContainer = document.getElementById('game-container');
-        const currentLevelDisplay = document.getElementById('current-level');
+        let nLvl = 0;
+        const oImg = document.getElementById('game-image');
+        const oLvlTxt = document.getElementById('current-level');
 
-        function drawHitbox() {
-            // Remove old hitbox if exists
-            const oldHitbox = document.querySelector('.hitbox-overlay');
-            const oldCenter = document.querySelector('.hitbox-center');
-            if (oldHitbox) oldHitbox.remove();
-            if (oldCenter) oldCenter.remove();
-
-            const rect = gameImage.getBoundingClientRect();
-            const level = levels[currentLevel];
-            
-            // Calculate hitbox position and size using pageX/pageY for absolute positioning
-            const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-            
-            const centerX = rect.left + scrollX + (rect.width * level.waldoX);
-            const centerY = rect.top + scrollY + (rect.height * level.waldoY);
-            
-            // Tolerance is a percentage, convert to pixels using Euclidean distance
-            const radiusPixelsX = rect.width * level.tolerance;
-            const radiusPixelsY = rect.height * level.tolerance;
-            const radiusPixels = Math.sqrt(radiusPixelsX * radiusPixelsX + radiusPixelsY * radiusPixelsY);
-            
-            // Create hitbox circle
-            const hitbox = document.createElement('div');
-            hitbox.className = 'hitbox-overlay';
-            hitbox.style.left = (centerX - radiusPixels) + 'px';
-            hitbox.style.top = (centerY - radiusPixels) + 'px';
-            hitbox.style.width = (radiusPixels * 2) + 'px';
-            hitbox.style.height = (radiusPixels * 2) + 'px';
-            document.body.appendChild(hitbox);
-
-            // Create center dot
-            const center = document.createElement('div');
-            center.className = 'hitbox-center';
-            center.style.left = centerX + 'px';
-            center.style.top = centerY + 'px';
-            document.body.appendChild(center);
-        }
-
-        function loadLevel(levelIndex) {
-            if (levelIndex >= levels.length) {
-                showVictory();
+        function fnLoad(nIdx) {
+            if (nIdx >= aLvl.length) {
+                fnWin();
                 return;
             }
             
-            gameImage.src = levels[levelIndex].image;
-            currentLevelDisplay.textContent = levelIndex + 1;
-            
-            // Draw hitbox after image loads
-            gameImage.onload = () => {
-                drawHitbox();
-            };
+            oImg.src = aLvl[nIdx].sImg;
+            oLvlTxt.textContent = nIdx + 1;
         }
 
-        // Redraw hitbox on window resize or scroll
-        window.addEventListener('resize', () => {
-            if (currentLevel < levels.length) {
-                drawHitbox();
-            }
-        });
-
-        window.addEventListener('scroll', () => {
-            if (currentLevel < levels.length) {
-                drawHitbox();
-            }
-        });
-
-        function checkClick(event) {
-            const rect = gameImage.getBoundingClientRect();
+        function fnClick(e) {
+            const oRect = oImg.getBoundingClientRect();
             
-            // Get click position relative to the image
-            const clickX = event.clientX - rect.left;
-            const clickY = event.clientY - rect.top;
+            const fClickX = e.clientX - oRect.left;
+            const fClickY = e.clientY - oRect.top;
             
-            // Convert to percentage (0-1 range)
-            const x = clickX / rect.width;
-            const y = clickY / rect.height;
+            const fX = fClickX / oRect.width;
+            const fY = fClickY / oRect.height;
 
-            const level = levels[currentLevel];
-            const distance = Math.sqrt(
-                Math.pow(x - level.waldoX, 2) + 
-                Math.pow(y - level.waldoY, 2)
+            const oLvl = aLvl[nLvl];
+            const fDist = Math.sqrt(
+                Math.pow(fX - oLvl.fX, 2) + 
+                Math.pow(fY - oLvl.fY, 2)
             );
 
-            const feedback = document.createElement('div');
-            feedback.className = 'click-feedback';
-            // Position feedback at click location, accounting for scroll
-            feedback.style.left = (event.pageX - 30) + 'px';
-            feedback.style.top = (event.pageY - 30) + 'px';
+            const oFb = document.createElement('div');
+            oFb.className = 'click-feedback';
+            oFb.style.left = (e.pageX - 30) + 'px';
+            oFb.style.top = (e.pageY - 30) + 'px';
 
-            console.log('Click:', {x, y}, 'Target:', {x: level.waldoX, y: level.waldoY}, 'Distance:', distance, 'Tolerance:', level.tolerance);
-
-            if (distance <= level.tolerance) {
-                // Found Waldo!
-                feedback.classList.add('success');
-                document.body.appendChild(feedback);
+            if (fDist <= oLvl.fTol) {
+                oFb.classList.add('success');
+                document.body.appendChild(oFb);
                 
                 setTimeout(() => {
-                    feedback.remove();
-                    currentLevel++;
-                    loadLevel(currentLevel);
+                    oFb.remove();
+                    nLvl++;
+                    fnLoad(nLvl);
                 }, 600);
             } else {
-                // Wrong spot
-                feedback.classList.add('fail');
-                document.body.appendChild(feedback);
+                oFb.classList.add('fail');
+                document.body.appendChild(oFb);
                 
                 setTimeout(() => {
-                    feedback.remove();
+                    oFb.remove();
                 }, 600);
             }
         }
 
-        function showVictory() {
-            // Remove hitbox
-            const oldHitbox = document.querySelector('.hitbox-overlay');
-            const oldCenter = document.querySelector('.hitbox-center');
-            if (oldHitbox) oldHitbox.remove();
-            if (oldCenter) oldCenter.remove();
-
-            const victoryScreen = document.createElement('div');
-            victoryScreen.className = 'victory';
-            victoryScreen.innerHTML = `
+        function fnWin() {
+            const oWin = document.createElement('div');
+            oWin.className = 'victory';
+            oWin.innerHTML = `
                 <h2>🎉 Congratulations! 🎉</h2>
                 <p style="font-size: 1.3em; margin-bottom: 20px;">You found Waldo in all 5 scenes!</p>
-                <button onclick="restartGame()">Play Again</button>
+                <button onclick="fnRestart()">Play Again</button>
             `;
-            document.body.appendChild(victoryScreen);
+            document.body.appendChild(oWin);
         }
 
-        function restartGame() {
-            currentLevel = 0;
+        function fnRestart() {
+            nLvl = 0;
             document.querySelector('.victory')?.remove();
-            loadLevel(currentLevel);
+            fnLoad(nLvl);
         }
 
-        gameImage.addEventListener('click', checkClick);
-
-        // Load the first level
-        loadLevel(0);
+        oImg.addEventListener('click', fnClick);
+        fnLoad(0);
     </script>
 </body>
 </html>
