@@ -5,140 +5,142 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Where's Waldo?</title>
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-        font-family: "Courier New", monospace;
-        background: #111;
-        color: #00ffcc;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        overflow-x: hidden;
-    }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #5a67d8;
+            background-image: url('hatter.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-    h1 {
-        font-size: 2rem;
-        letter-spacing: 3px;
-        margin-bottom: 15px;
-        text-transform: uppercase;
-        color: #ff004c;
-        text-shadow: 0 0 10px #ff004c;
-    }
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
 
-    .instructions {
-        background: #1a1a1a;
-        border: 2px solid #00ffcc;
-        padding: 12px;
-        margin-bottom: 15px;
-        max-width: 600px;
-        text-align: center;
-        font-size: 0.9em;
-    }
+        .instructions {
+            background: #fff;
+            padding: 12px;
+            border-radius: 5px;
+            margin: 0 auto 15px;
+            max-width: 600px;
+            text-align: center;
+        }
 
-    .game-info {
-        background: #000;
-        border: 2px solid #ff004c;
-        padding: 10px 25px;
-        margin-bottom: 15px;
-        text-align: center;
-    }
+        .game-info {
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 auto 20px;
+            max-width: 200px;
+            text-align: center;
+        }
 
-    .level {
-        font-size: 1.2em;
-        color: #00ffcc;
-        font-weight: bold;
-    }
+        .level {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: bold;
+        }
 
-    .game-container {
-        position: relative;
-        max-width: 95vw;
-        max-height: 75vh;
-        background: #000;
-        border: 4px solid #00ffcc;
-        padding: 10px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+        .game-container {
+            position: relative;
+            max-width: 95vw;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+        }
 
-    #game-image {
-        display: block;
-        max-width: 100%;
-        max-height: 70vh;
-        cursor: crosshair;
-        border: 2px solid #ff004c;
-    }
+        #game-image {
+            display: block;
+            max-width: 100%;
+            max-height: 70vh;
+            width: auto;
+            height: auto;
+            margin: 0 auto;
+            cursor: crosshair;
+            border-radius: 4px;
+        }
 
-    .click-feedback {
-        position: absolute;
-        width: 60px;
-        height: 60px;
-        pointer-events: none;
-        animation: glitch 0.4s linear;
-    }
+        .click-feedback {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: expand 0.6s ease-out;
+        }
 
-    .success {
-        border: 4px solid #00ff00;
-        background: transparent;
-    }
+        .success {
+            border: 4px solid #48bb78;
+            background: rgba(72, 187, 120, 0.2);
+        }
 
-    .fail {
-        border: 4px solid #ff0000;
-        background: transparent;
-    }
+        .fail {
+            border: 4px solid #f56565;
+            background: rgba(245, 101, 101, 0.2);
+        }
 
-    @keyframes glitch {
-        0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.5) rotate(10deg); opacity: 0.7; }
-        100% { transform: scale(2); opacity: 0; }
-    }
+        @keyframes expand {
+            from {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
 
-    .victory {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #000;
-        border: 4px solid #00ffcc;
-        padding: 40px 60px;
-        text-align: center;
-        z-index: 1000;
-        animation: flicker 0.2s infinite alternate;
-    }
+        .victory {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+        }
 
-    @keyframes flicker {
-        from { box-shadow: 0 0 10px #00ffcc; }
-        to { box-shadow: 0 0 30px #ff004c; }
-    }
+        .victory h2 {
+            color: #48bb78;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
 
-    .victory h2 {
-        color: #00ff00;
-        font-size: 2em;
-        margin-bottom: 20px;
-    }
+        .victory p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
 
-    .victory button {
-        background: #ff004c;
-        color: #000;
-        border: 2px solid #00ffcc;
-        padding: 12px 25px;
-        font-size: 1em;
-        cursor: pointer;
-        font-family: inherit;
-    }
+        .victory button {
+            background: #5a67d8;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-    .victory button:hover {
-        background: #00ffcc;
-        color: #000;
-    }
-</style>
+        .victory button:hover {
+            background: #4c51bf;
+        }
+    </style>
 </head>
 <body>
     <h1>Where's Waldo?</h1>
@@ -157,36 +159,11 @@
 
     <script>
         const aLvl = [
-            {
-                sImg: 'kep1.webp',
-                fX: 0.85,
-                fY: 0.75,
-                fTol: 0.015
-            },
-            {
-                sImg: 'kep2.webp',
-                fX: 0.665,
-                fY: 0.165,
-                fTol: 0.01
-            },
-            {
-                sImg: 'kep3.webp',
-                fX: 0.17038,
-                fY: 0.71184,
-                fTol: 0.007
-            },
-            {
-                sImg: 'kep4.webp',
-                fX: 0.6197,
-                fY: 0.3863,
-                fTol: 0.015
-            },
-            {
-                sImg: 'kep5.webp',
-                fX: 0.17768,
-                fY: 0.65954,
-                fTol: 0.01
-            }
+            { sImg: 'kep1.webp', fX: 0.85, fY: 0.75, fTol: 0.015 },
+            { sImg: 'kep2.webp', fX: 0.665, fY: 0.165, fTol: 0.01 },
+            { sImg: 'kep3.webp', fX: 0.17038, fY: 0.71184, fTol: 0.007 },
+            { sImg: 'kep4.webp', fX: 0.6197, fY: 0.3863, fTol: 0.015 },
+            { sImg: 'kep5.webp', fX: 0.17768, fY: 0.65954, fTol: 0.01 }
         ];
 
         let nLvl = 0;
@@ -198,24 +175,19 @@
                 fnWin();
                 return;
             }
-            
             oImg.src = aLvl[nIdx].sImg;
             oLvlTxt.textContent = nIdx + 1;
         }
 
         function fnClick(e) {
             const oRect = oImg.getBoundingClientRect();
-            
             const fClickX = e.clientX - oRect.left;
             const fClickY = e.clientY - oRect.top;
-            
             const fX = fClickX / oRect.width;
             const fY = fClickY / oRect.height;
-
             const oLvl = aLvl[nLvl];
             const fDist = Math.sqrt(
-                Math.pow(fX - oLvl.fX, 2) + 
-                Math.pow(fY - oLvl.fY, 2)
+                Math.pow(fX - oLvl.fX, 2) + Math.pow(fY - oLvl.fY, 2)
             );
 
             const oFb = document.createElement('div');
@@ -226,7 +198,6 @@
             if (fDist <= oLvl.fTol) {
                 oFb.classList.add('success');
                 document.body.appendChild(oFb);
-                
                 setTimeout(() => {
                     oFb.remove();
                     nLvl++;
@@ -235,7 +206,6 @@
             } else {
                 oFb.classList.add('fail');
                 document.body.appendChild(oFb);
-                
                 setTimeout(() => {
                     oFb.remove();
                 }, 600);
@@ -247,7 +217,7 @@
             oWin.className = 'victory';
             oWin.innerHTML = `
                 <h2>Wow nyertél!!!!</h2>
-                <p style="font-size: 1.3em; margin-bottom: 20px;">You found Waldo in all 5 scenes!</p>
+                <p>You found Waldo in all 5 scenes!</p>
                 <button onclick="fnRestart()">Újra</button>
             `;
             document.body.appendChild(oWin);
