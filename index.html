@@ -147,7 +147,7 @@
     <h1>Where's Waldo?</h1>
     
     <div class="instructions">
-        <p><strong>Találd meg Waldo-t!</strong> A tovább jutáshoz kattint Waldo-ra (néhány helyen lehet kicsit elcsúszott a hitbox). Sok szerencsét!</p>
+        <p><strong>Találd meg Waldo-t!</strong> A tovább jutáshoz kattint Waldo-ra<br>(néhány helyen lehet kicsit elcsúszott a hitbox). Sok szerencsét!</p>
     </div>
 
     <div class="game-info">
@@ -223,7 +223,7 @@
             oWin.className = 'victory';
             oWin.innerHTML = `
                 <h2>Wow nyertél!!!!</h2>
-                <p>You found Waldo in all 5 scenes!</p>
+                <p>Megtaláltad az összes Waldo-t!</p>
                 <button onclick="fnRestart()">Újra</button>
             `;
             document.body.appendChild(oWin);
