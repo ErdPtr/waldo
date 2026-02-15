@@ -161,14 +161,14 @@
     </style>
 </head>
 <body>
-    <h1>🔍 Where's Waldo? 🔍</h1>
+    <h1>Where's Waldo?</h1>
     
     <div class="instructions">
-        <p><strong>Find Waldo!</strong> Click on Waldo in the image to advance to the next level. Good luck! 🎯</p>
+        <p><strong>Találd meg Waldo-t!</strong> A tovább jutáshoz kattint Waldo-ra (néhány helyen lehet kicsit elcsúszott a hitbox). Sok szerencsét!</p>
     </div>
 
     <div class="game-info">
-        <div class="level">Level <span id="current-level">1</span> of 5</div>
+        <div class="level">Szint: <span id="current-level">1</span> / 5</div>
     </div>
 
     <div class="game-container">
@@ -266,9 +266,9 @@
             const oWin = document.createElement('div');
             oWin.className = 'victory';
             oWin.innerHTML = `
-                <h2>🎉 Congratulations! 🎉</h2>
+                <h2>Wow nyertél!!!!</h2>
                 <p style="font-size: 1.3em; margin-bottom: 20px;">You found Waldo in all 5 scenes!</p>
-                <button onclick="fnRestart()">Play Again</button>
+                <button onclick="fnRestart()">Újra</button>
             `;
             document.body.appendChild(oWin);
         }
