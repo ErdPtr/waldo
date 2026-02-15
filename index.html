@@ -5,160 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Where's Waldo?</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-image: url('hatter.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-            overflow-x: hidden;
-        }
+    body {
+        font-family: "Courier New", monospace;
+        background: #111;
+        color: #00ffcc;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        overflow-x: hidden;
+    }
 
-        h1 {
-            color: white;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-            margin-bottom: 10px;
-            font-size: 1.8em;
-            text-align: center;
-        }
+    h1 {
+        font-size: 2rem;
+        letter-spacing: 3px;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        color: #ff004c;
+        text-shadow: 0 0 10px #ff004c;
+    }
 
-        .game-info {
-            background: white;
-            padding: 8px 20px;
-            border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            margin-bottom: 10px;
-            text-align: center;
-        }
+    .instructions {
+        background: #1a1a1a;
+        border: 2px solid #00ffcc;
+        padding: 12px;
+        margin-bottom: 15px;
+        max-width: 600px;
+        text-align: center;
+        font-size: 0.9em;
+    }
 
-        .level {
-            font-size: 1.2em;
-            color: #667eea;
-            font-weight: bold;
-        }
+    .game-info {
+        background: #000;
+        border: 2px solid #ff004c;
+        padding: 10px 25px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
 
-        .game-container {
-            position: relative;
-            max-width: 95vw;
-            max-height: 75vh;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    .level {
+        font-size: 1.2em;
+        color: #00ffcc;
+        font-weight: bold;
+    }
 
-        #game-image {
-            display: block;
-            max-width: 100%;
-            max-height: 70vh;
-            width: auto;
-            height: auto;
-            cursor: crosshair;
-            border-radius: 10px;
-        }
+    .game-container {
+        position: relative;
+        max-width: 95vw;
+        max-height: 75vh;
+        background: #000;
+        border: 4px solid #00ffcc;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-        .click-feedback {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: ping 0.6s ease-out;
-        }
+    #game-image {
+        display: block;
+        max-width: 100%;
+        max-height: 70vh;
+        cursor: crosshair;
+        border: 2px solid #ff004c;
+    }
 
-        .success {
-            border: 4px solid #4CAF50;
-            background: rgba(76, 175, 80, 0.2);
-        }
+    .click-feedback {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        pointer-events: none;
+        animation: glitch 0.4s linear;
+    }
 
-        .fail {
-            border: 4px solid #f44336;
-            background: rgba(244, 67, 54, 0.2);
-        }
+    .success {
+        border: 4px solid #00ff00;
+        background: transparent;
+    }
 
-        @keyframes ping {
-            0% {
-                transform: scale(0.5);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(2);
-                opacity: 0;
-            }
-        }
+    .fail {
+        border: 4px solid #ff0000;
+        background: transparent;
+    }
 
-        .victory {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 40px 60px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            text-align: center;
-            z-index: 1000;
-            animation: popIn 0.3s ease-out;
-        }
+    @keyframes glitch {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.5) rotate(10deg); opacity: 0.7; }
+        100% { transform: scale(2); opacity: 0; }
+    }
 
-        @keyframes popIn {
-            0% {
-                transform: translate(-50%, -50%) scale(0.5);
-                opacity: 0;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-        }
+    .victory {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #000;
+        border: 4px solid #00ffcc;
+        padding: 40px 60px;
+        text-align: center;
+        z-index: 1000;
+        animation: flicker 0.2s infinite alternate;
+    }
 
-        .victory h2 {
-            color: #4CAF50;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
+    @keyframes flicker {
+        from { box-shadow: 0 0 10px #00ffcc; }
+        to { box-shadow: 0 0 30px #ff004c; }
+    }
 
-        .victory button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+    .victory h2 {
+        color: #00ff00;
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
 
-        .victory button:hover {
-            transform: scale(1.05);
-            background: #764ba2;
-        }
+    .victory button {
+        background: #ff004c;
+        color: #000;
+        border: 2px solid #00ffcc;
+        padding: 12px 25px;
+        font-size: 1em;
+        cursor: pointer;
+        font-family: inherit;
+    }
 
-        .instructions {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            max-width: 600px;
-            text-align: center;
-            font-size: 0.9em;
-        }
-    </style>
+    .victory button:hover {
+        background: #00ffcc;
+        color: #000;
+    }
+</style>
 </head>
 <body>
     <h1>Where's Waldo?</h1>
