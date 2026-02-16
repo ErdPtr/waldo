@@ -53,6 +53,9 @@
             border-radius: 5px;
             text-align: center;
             min-width: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .stat-label {
@@ -76,6 +79,7 @@
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
+            margin-top: 5px;
         }
 
         .hint-button:hover {
@@ -96,6 +100,7 @@
             padding: 5px;
             width: fit-content;
             overflow: hidden;
+            transition: all 0.5s ease;
         }
 
         #game-image {
@@ -187,7 +192,7 @@
     <h1>Where's Waldo?</h1>
     
     <div class="instructions">
-        <p><strong>Találd meg Waldo-t!</strong> A tovább jutáshoz kattint Waldo-ra (néhány helyen lehet kicsit elcsúszott a hitbox). Sok szerencsét!</p>
+        <p><strong>Találd meg Waldo-t!</strong> A tovább jutáshoz kattint Waldo-ra<br>(néhány helyen lehet kicsit elcsúszott a hitbox). Sok szerencsét!</p>
     </div>
 
     <div class="game-stats">
@@ -206,7 +211,7 @@
         </div>
     </div>
 
-    <div class="game-container">
+    <div class="game-container" id="game-container">
         <img id="game-image" src="" alt="Where's Waldo?">
     </div>
 
@@ -228,6 +233,7 @@
         let bHintActive = false;
 
         const oImg = document.getElementById('game-image');
+        const oContainer = document.getElementById('game-container');
         const oLvlTxt = document.getElementById('current-level');
         const oIncorrectTxt = document.getElementById('incorrect-guesses');
         const oTimerDisplay = document.getElementById('timer-display');
@@ -240,12 +246,12 @@
             }
             oImg.src = aLvl[nIdx].sImg;
             oLvlTxt.textContent = nIdx + 1;
-            
             bHintActive = false;
             oImg.style.clipPath = '';
             oImg.style.transform = '';
             oImg.classList.remove('hint-active');
-            
+            oContainer.style.transform = '';
+
             fnResetTimer();
         }
 
@@ -308,6 +314,7 @@
             oImg.style.clipPath = sClipPath;
             oImg.style.transform = `scale(1.5) translate(${fTransformX}%, ${fTransformY}%)`;
             oImg.classList.add('hint-active');
+            oContainer.style.transform = 'scale(1.5)';
         }
 
         function fnClick(e) {
