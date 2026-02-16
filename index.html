@@ -38,19 +38,53 @@
             text-align: center;
         }
 
-        .game-info {
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 0 auto 20px;
+            max-width: 800px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
             background: #fff;
             padding: 10px 20px;
             border-radius: 5px;
-            margin: 0 auto 20px;
-            max-width: 200px;
             text-align: center;
+            min-width: 150px;
         }
 
-        .level {
-            font-size: 1.1em;
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.3em;
             color: #333;
             font-weight: bold;
+        }
+
+        .hint-button {
+            background: #f59e0b;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .hint-button:hover {
+            background: #d97706;
+        }
+
+        .hint-button:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
         }
 
         .game-container {
@@ -61,6 +95,7 @@
             border-radius: 8px;
             padding: 5px;
             width: fit-content;
+            overflow: hidden;
         }
 
         #game-image {
@@ -72,6 +107,11 @@
             margin: 0 auto;
             cursor: crosshair;
             border-radius: 4px;
+            transition: transform 0.5s ease, clip-path 0.5s ease;
+        }
+
+        #game-image.hint-active {
+            transform: scale(1.5);
         }
 
         .click-feedback {
@@ -147,11 +187,23 @@
     <h1>Where's Waldo?</h1>
     
     <div class="instructions">
-        <p><strong>Találd meg Waldo-t!</strong> A tovább jutáshoz kattint Waldo-ra<br>(néhány helyen lehet kicsit elcsúszott a hitbox). Sok szerencsét!</p>
+        <p><strong>Találd meg Waldo-t!</strong> A tovább jutáshoz kattint Waldo-ra (néhány helyen lehet kicsit elcsúszott a hitbox). Sok szerencsét!</p>
     </div>
 
-    <div class="game-info">
-        <div class="level">Szint: <span id="current-level">1</span> / 5</div>
+    <div class="game-stats">
+        <div class="stat-box">
+            <div class="stat-label">Szint</div>
+            <div class="stat-value"><span id="current-level">1</span> / 5</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Hibás találgatások</div>
+            <div class="stat-value" id="incorrect-guesses">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Segítség</div>
+            <div class="stat-value" id="timer-display">5:00</div>
+            <button class="hint-button" id="hint-button" style="display: none;" onclick="fnShowHint()">Hint</button>
+        </div>
     </div>
 
     <div class="game-container">
@@ -169,8 +221,17 @@
 
         let nLvl = 0;
         let bProcessing = false;
+        let nIncorrect = 0;
+        let nTimeLeft = 300;
+        let oTimer = null;
+        let bHintUsed = false;
+        let bHintActive = false;
+
         const oImg = document.getElementById('game-image');
         const oLvlTxt = document.getElementById('current-level');
+        const oIncorrectTxt = document.getElementById('incorrect-guesses');
+        const oTimerDisplay = document.getElementById('timer-display');
+        const oHintButton = document.getElementById('hint-button');
 
         function fnLoad(nIdx) {
             if (nIdx >= aLvl.length) {
@@ -179,6 +240,74 @@
             }
             oImg.src = aLvl[nIdx].sImg;
             oLvlTxt.textContent = nIdx + 1;
+            
+            bHintActive = false;
+            oImg.style.clipPath = '';
+            oImg.style.transform = '';
+            oImg.classList.remove('hint-active');
+            
+            fnResetTimer();
+        }
+
+        function fnResetTimer() {
+            if (oTimer) clearInterval(oTimer);
+            nTimeLeft = 300;
+            bHintUsed = false;
+            oTimerDisplay.style.display = 'block';
+            oHintButton.style.display = 'none';
+            oHintButton.disabled = false;
+            fnUpdateTimerDisplay();
+            
+            oTimer = setInterval(() => {
+                nTimeLeft--;
+                fnUpdateTimerDisplay();
+                
+                if (nTimeLeft <= 0) {
+                    clearInterval(oTimer);
+                    oTimerDisplay.style.display = 'none';
+                    oHintButton.style.display = 'block';
+                }
+            }, 1000);
+        }
+
+        function fnUpdateTimerDisplay() {
+            const nMinutes = Math.floor(nTimeLeft / 60);
+            const nSeconds = nTimeLeft % 60;
+            oTimerDisplay.textContent = `${nMinutes}:${nSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function fnShowHint() {
+            if (bHintUsed) return;
+            
+            bHintUsed = true;
+            bHintActive = true;
+            oHintButton.disabled = true;
+            
+            const oLvl = aLvl[nLvl];
+            const fWaldoX = oLvl.fX;
+            const fWaldoY = oLvl.fY;
+            
+            let sClipPath = '';
+            let fTransformX = 0;
+            let fTransformY = 0;
+            
+            if (fWaldoX < 0.5) {
+                sClipPath = 'inset(0 50% 0 0)';
+                fTransformX = 25; 
+            } else {
+                sClipPath = 'inset(0 0 0 50%)';
+                fTransformX = -25; 
+            }
+            
+            if (fWaldoY < 0.33) {
+                fTransformY = 15;
+            } else if (fWaldoY > 0.66) {
+                fTransformY = -15;
+            }
+            
+            oImg.style.clipPath = sClipPath;
+            oImg.style.transform = `scale(1.5) translate(${fTransformX}%, ${fTransformY}%)`;
+            oImg.classList.add('hint-active');
         }
 
         function fnClick(e) {
@@ -210,6 +339,8 @@
                     bProcessing = false;
                 }, 600);
             } else {
+                nIncorrect++;
+                oIncorrectTxt.textContent = nIncorrect;
                 oFb.classList.add('fail');
                 document.body.appendChild(oFb);
                 setTimeout(() => {
@@ -219,11 +350,13 @@
         }
 
         function fnWin() {
+            if (oTimer) clearInterval(oTimer);
             const oWin = document.createElement('div');
             oWin.className = 'victory';
             oWin.innerHTML = `
                 <h2>Wow nyertél!!!!</h2>
                 <p>Megtaláltad az összes Waldo-t!</p>
+                <p style="font-size: 1em; color: #666;">Hibás találgatások: ${nIncorrect}</p>
                 <button onclick="fnRestart()">Újra</button>
             `;
             document.body.appendChild(oWin);
@@ -232,6 +365,8 @@
         function fnRestart() {
             nLvl = 0;
             bProcessing = false;
+            nIncorrect = 0;
+            oIncorrectTxt.textContent = nIncorrect;
             document.querySelector('.victory')?.remove();
             fnLoad(nLvl);
         }
