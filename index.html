@@ -138,6 +138,15 @@
             background: rgba(245, 101, 101, 0.2);
         }
 
+        .debug-hitbox {
+            position: absolute;
+            border: 3px solid #ff00ff;
+            background: rgba(255, 0, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
         @keyframes expand {
             from {
                 transform: scale(0.5);
@@ -222,11 +231,11 @@
             { sImg: 'kep3.webp', fX: 0.17038, fY: 0.71184, fTol: 0.007 },
             { sImg: 'kep4.webp', fX: 0.6197, fY: 0.3863, fTol: 0.015 },
             { sImg: 'kep5.webp', fX: 0.17768, fY: 0.65954, fTol: 0.01 },
-            { sImg: 'kep6.jpg', fX: 0.6197, fY: 0.3863, fTol: 0.015 },
-            { sImg: 'kep7.jpg', fX: 0.6197, fY: 0.3863, fTol: 0.015 },
-            { sImg: 'kep8.jpg', fX: 0.6197, fY: 0.3863, fTol: 0.015 },
-            { sImg: 'kep9.jpg', fX: 0.6197, fY: 0.3863, fTol: 0.015 },
-            { sImg: 'kep10.jpg', fX: 0.6197, fY: 0.3863, fTol: 0.015 }
+            { sImg: 'kep6.jpg', fX: 0.916, fY: 0.555, fTol: 0.015 },
+            { sImg: 'kep7.jpg', fX: 0.494, fY: 0.202, fTol: 0.015 },
+            { sImg: 'kep8.jpg', fX: 0.863, fY: 0.398, fTol: 0.015 },
+            { sImg: 'kep9.jpg', fX: 0.571, fY: 0.349, fTol: 0.015 },
+            { sImg: 'kep10.jpg', fX: 0.403, fY: 0.625, fTol: 0.015 }
         ];
 
         let nLvl = 0;
@@ -236,6 +245,8 @@
         let oTimer = null;
         let bHintUsed = false;
         let bHintActive = false;
+        let bDebugMode = false;
+        let sKeyBuffer = '';
 
         const oImg = document.getElementById('game-image');
         const oContainer = document.getElementById('game-container');
@@ -243,6 +254,44 @@
         const oIncorrectTxt = document.getElementById('incorrect-guesses');
         const oTimerDisplay = document.getElementById('timer-display');
         const oHintButton = document.getElementById('hint-button');
+
+        document.addEventListener('keydown', (e) => {
+            sKeyBuffer += e.key.toLowerCase();
+            if (sKeyBuffer.length > 14) {
+                sKeyBuffer = sKeyBuffer.slice(-14);
+            }
+            
+            if (sKeyBuffer.includes('palfimatetest')) {
+                bDebugMode = !bDebugMode;
+                sKeyBuffer = '';
+                fnUpdateDebugHitbox();
+            }
+        });
+
+        function fnUpdateDebugHitbox() {
+            const existingHitbox = document.querySelector('.debug-hitbox');
+            if (existingHitbox) {
+                existingHitbox.remove();
+            }
+
+            if (!bDebugMode) return;
+
+            const oLvl = aLvl[nLvl];
+            const oRect = oImg.getBoundingClientRect();
+            
+            const fHitboxRadius = oLvl.fTol * Math.max(oRect.width, oRect.height);
+            const fCenterX = oRect.left + (oLvl.fX * oRect.width);
+            const fCenterY = oRect.top + (oLvl.fY * oRect.height);
+
+            const oHitbox = document.createElement('div');
+            oHitbox.className = 'debug-hitbox';
+            oHitbox.style.width = (fHitboxRadius * 2) + 'px';
+            oHitbox.style.height = (fHitboxRadius * 2) + 'px';
+            oHitbox.style.left = (fCenterX - fHitboxRadius) + 'px';
+            oHitbox.style.top = (fCenterY - fHitboxRadius) + 'px';
+            
+            document.body.appendChild(oHitbox);
+        }
 
         function fnLoad(nIdx) {
             if (nIdx >= aLvl.length) {
@@ -258,6 +307,12 @@
             oContainer.style.transform = '';
 
             fnResetTimer();
+            
+            oImg.onload = () => {
+                if (bDebugMode) {
+                    fnUpdateDebugHitbox();
+                }
+            };
         }
 
         function fnResetTimer() {
@@ -382,6 +437,11 @@
             document.querySelector('.victory')?.remove();
             fnLoad(nLvl);
         }
+        window.addEventListener('resize', () => {
+            if (bDebugMode) {
+                fnUpdateDebugHitbox();
+            }
+        });
 
         oImg.addEventListener('click', fnClick);
         fnLoad(0);
